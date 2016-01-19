@@ -1,5 +1,10 @@
-# ninja-project package
+# Ninja Project
 
-A short description of your package.
+Package for a comfortable work with C/C++ projects, generating Ninja files.
 
-![A screenshot of your package](https://f.cloud.github.com/assets/69169/2290250/c35d867a-a017-11e3-86be-cd7c5bf3ff9b.gif)
+Supportes:
+
+  * Proper code auto-complete, using Compilation Database and Clang
+  * Multiple build paths (Debug, Release, ...)
+
+Many more features are planned - to make an Atom Editor a "full-metal" C++ IDE.
