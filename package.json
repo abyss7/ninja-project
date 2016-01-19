@@ -1,0 +1,26 @@
+{
+  "name": "ninja-project",
+  "main": "./lib/ninja-project",
+  "version": "1.0.0",
+  "description": "Project manager for the Ninja build system",
+  "keywords": [
+  ],
+  "activationCommands": {
+    "atom-workspace": "ninja-project:regenerate"
+  },
+  "repository": "https://github.com/atom/ninja-project",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "cson": ">=3.0.0"
+  },
+  "providedServices": {
+    "autocomplete.provider": {
+      "versions": {
+        "2.0.0": "provide"
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+# See https://atom.io/docs/latest/hacking-atom-package-word-count#menus
+# for more details.
+
+# 'context-menu':
+#   'atom-text-editor': [
+#     {
+#       'label': 'Toggle ninja-project'
+#       'command': 'ninja-project:toggle'
+#     }
+#   ]
+
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'Ninja Project'
+      'submenu': [
+        {
+          'label': 'Regenerate'
+          'command': 'ninja-project:regenerate'
+        }
+      ]
+    ]
+  }
+]
