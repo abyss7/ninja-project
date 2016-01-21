@@ -22,6 +22,7 @@ class ClangProvider
     command = 'clang'
 
     if not @project.compdb[editor.getPath()]?
+      atom.notifications.addWarning("File is not in project")
       return null
 
     args =

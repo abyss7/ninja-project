@@ -1,5 +1,6 @@
 ClangProvider = require './clang-provider'
 
+{BufferedProcess} = require 'atom'
 {CompositeDisposable} = require 'atom'
 CSON = require 'cson'
 FileSystem = require 'fs'
@@ -30,6 +31,7 @@ module.exports = NinjaProject =
     for path in atom.project.getPaths()
       config_path = Path.resolve(path, '.atom')
       if not FileSystem.existsSync(config_path)
+        atom.notifications.addInfo("Configuration file not found in #{path}")
         continue
       config = CSON.load(config_path)
 
@@ -44,7 +46,11 @@ module.exports = NinjaProject =
       stdout = (output) -> compdb_string += output
 
       exit = (code) =>
-        console.log("ninja exited with code #{code} on path #{path}")
+        if code is not 0
+          atom.notifications.addError("Failed to parse project")
+          return
+        atom.notifications.addSuccess("Project parsed successfully")
+
         for entry in JSON.parse(compdb_string)
           # TODO: leave only required arguments for proper code-completion.
           args = (entry.command.split ' ')[1..]
@@ -63,4 +69,5 @@ module.exports = NinjaProject =
             args: args
             cwd: entry.directory
           }
+
       process = new BufferedProcess({command, args, options, stdout, exit})
