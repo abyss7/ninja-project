@@ -1,6 +1,6 @@
 ClangProvider = require './clang-provider'
+Utils = require './utils'
 
-{BufferedProcess} = require 'atom'
 {CompositeDisposable} = require 'atom'
 CSON = require 'cson'
 FileSystem = require 'fs'
@@ -35,39 +35,39 @@ module.exports = NinjaProject =
         continue
       config = CSON.load(config_path)
 
-      console.log(config)
+      if config.regenerate?
+        Utils.RunCommand({
+          command: config.regenerate
+          cwd: path
+        }). then ({code}) =>
+          if code is not 0
+            atom.notifications.addError("Failed to regenerate project")
+            return
 
-      compdb_string = ''
+          args = ['-C', config.build_path, '-t', 'compdb'].concat config.rules
+          cwd = path
 
-      args = ['-C', config['build_path'], '-t', 'compdb'].concat config['rules']
-      options = { cwd: path }
+          Utils.RunCommand({command, args, cwd}).then ({code, stdout}) =>
+            if code is not 0
+              atom.notifications.addError("Failed to regenerate project")
+              return
+            atom.notifications.addSuccess("Project regenerated successfully")
 
-      # FIXME: find the most efficient way to read stdout.
-      stdout = (output) -> compdb_string += output
+            for entry in JSON.parse(stdout)
+              # TODO: leave only required arguments for proper code-completion.
+              args = (entry.command.split ' ')[1..]
 
-      exit = (code) =>
-        if code is not 0
-          atom.notifications.addError("Failed to parse project")
-          return
-        atom.notifications.addSuccess("Project parsed successfully")
+              # FIXME: it's a hack!
+              c_index = args.indexOf '-c'
+              if (c_index != -1)
+                args.splice c_index, 2
 
-        for entry in JSON.parse(compdb_string)
-          # TODO: leave only required arguments for proper code-completion.
-          args = (entry.command.split ' ')[1..]
+              # FIXME: it's a hack!
+              o_index = args.indexOf '-o'
+              if (o_index != -1)
+                args.splice o_index, 2
 
-          # FIXME: it's a hack!
-          c_index = args.indexOf '-c'
-          if (c_index != -1)
-            args.splice c_index, 2
-
-          # FIXME: it's a hack!
-          o_index = args.indexOf '-o'
-          if (o_index != -1)
-            args.splice o_index, 2
-
-          @compdb[Path.resolve(entry.directory, entry.file)] = {
-            args: args
-            cwd: entry.directory
-          }
-
-      process = new BufferedProcess({command, args, options, stdout, exit})
+              @compdb[Path.resolve(entry.directory, entry.file)] = {
+                args: args
+                cwd: entry.directory
+              }
