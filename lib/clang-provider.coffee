@@ -1,4 +1,4 @@
-{BufferedProcess} = require 'atom'
+Utils = require './utils'
 
 module.exports =
 class ClangProvider
@@ -48,22 +48,16 @@ class ClangProvider
 
   codeCompletionAt: (editor, command, args) ->
     new Promise (resolve) =>
-      completions = ''
-
-      options = { cwd: @project.compdb[editor.getPath()].cwd }
-      stdout = (stdout) -> completions += stdout
-      stderr = (stderr) -> console.log stderr
-      exit = (code) =>
+      Utils.RunCommand({
+        command, args, cwd: @project.compdb[editor.getPath()].cwd,
+        stdin: editor.getText()
+      }).then ({code, stdout, stderr}) =>
+        console.log stderr
         console.log("clang exited with code #{code}")
         if code is 0
-          lines = completions.trim().split '\n'
+          lines = stdout.trim().split '\n'
           parsed_completions = (@parseCompletion(line) for line in lines)
           resolve(entry for entry in parsed_completions when entry?)
-      process =
-        new BufferedProcess({command, args, options, stdout, stderr, exit})
-      process.process.stdin.setEncoding = 'utf-8'
-      process.process.stdin.write(editor.getText())
-      process.process.stdin.end()
 
   parseCompletion: (line) ->
     lineRegexp = /COMPLETION: ([^:]+)(?: : (.+))?$/
