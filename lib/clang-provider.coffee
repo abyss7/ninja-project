@@ -69,7 +69,7 @@ class ClangProvider
     if match?
       [line, completion, pattern] = match
       unless pattern?
-        return {snippet:completion, text:completion}
+        return {snippet: completion, text: completion}
       [patternNoComment, briefComment] = pattern.split commentSplitRegexp
       returnType = null
       patternNoType =
@@ -82,11 +82,20 @@ class ClangProvider
         "${#{index}:#{arg}}"
 
       suggestion = {}
-      suggestion.rightLabel = returnType if returnType?
+      suggestion.leftLabel = returnType if returnType?
       if index > 0
         suggestion.snippet = replacement
+        suggestion.type = 'function'
       else
         suggestion.text = replacement
+        if /\(\)/.test(patternNoType)
+          suggestion.type = 'function'
+        else if /::$/.test(patternNoType)
+          suggestion.type = 'namespace'
+        else if /^enum /.test(returnType)
+          suggestion.type = 'enum'
+        else if returnType
+          suggestion.type = 'variable'
       suggestion.description = briefComment if briefComment?
       suggestion
 
