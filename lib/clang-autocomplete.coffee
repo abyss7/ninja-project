@@ -25,9 +25,10 @@ class ClangProvider
       atom.notifications.addWarning("File is not in project")
       return null
 
-    args =
-      ['-fsyntax-only', '-Xclang', "-code-completion-at=-:#{row}:#{col}"]
-      .concat @project.compdb[editor.getPath()].args
+    args = [
+      '-fsyntax-only',
+      '-Xclang', "-code-completion-at=-:#{row}:#{col}",
+    ].concat @project.compdb[editor.getPath()].args
 
     # Clang can't detect language from stdin - provided it via arguments.
     args.push '-x'

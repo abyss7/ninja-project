@@ -1,4 +1,5 @@
-ClangProvider = require './clang-provider'
+ClangProvider = require './clang-autocomplete'
+ClangLinter = require './clang-linter'
 Utils = require './utils'
 
 {CompositeDisposable} = require 'atom'
@@ -24,6 +25,9 @@ module.exports = NinjaProject =
 
   provide: ->
     new ClangProvider(@)
+
+  provideLinter: ->
+    new ClangLinter(@)
 
   regenerate: ->
     command = 'ninja'  # TODO: take it from package settings.
